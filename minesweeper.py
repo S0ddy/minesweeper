@@ -215,7 +215,7 @@ class MinesweeperAI():
         # add knowledge
         if adjusted_cells:
             self.knowledge.append(Sentence(adjusted_cells, adjusted_count))
-            
+            print(f"added sentence: cells: {adjusted_cells} count: {adjusted_count}")            
 
         # mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
         repeat = True
@@ -253,13 +253,12 @@ class MinesweeperAI():
                     cells2 = sentence2.cells
                     if len(cells1) > 0 and len(cells2) > 0 and cells1.issubset(cells2):
                         sentence2.cells = cells2 - cells1
+                        count1 = sentence1.count
+                        count2 = sentence2.count
+                        sentence2.count = count2 - count1
                         repeat = True
+                        print(f"updated sentence: old cells: {cells2} new cells: {sentence2.cells} old count: {count2} new count: {sentence2.count}")
 
-
-
-
-            
-        
 
     def make_safe_move(self):
         """
