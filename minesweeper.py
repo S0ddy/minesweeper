@@ -214,13 +214,7 @@ class MinesweeperAI():
 
         # add knowledge
         if adjusted_cells:
-            add = True
-            for i in self.knowledge:
-                if(adjusted_cells in i):
-                    add = False
-
-            if add:
-                self.knowledge.append(Sentence(adjusted_cells, adjusted_count))
+            self.knowledge.append(Sentence(adjusted_cells, adjusted_count))
             
 
         # mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
@@ -250,48 +244,8 @@ class MinesweeperAI():
 
 
             #infer new knowledge based on existing one
-
-            # new_knowledges = []
-            # for i in range(len(self.knowledge)-1):
-            #     if len(self.knowledge[i].cells) == 0:
-            #         continue
-            #     for j in range(i+1, len(self.knowledge)):
-            #         if len(self.knowledge[j].cells) == 0:
-            #             continue
-            #         sentence1 = self.knowledge[i]
-            #         sentence2 = self.knowledge[j]
-            #         if sentence1.cells and sentence2.cells and (sentence1.cells).issubset(sentence2.cells) and sentence1.cells != sentence2.cells:
-            #             new_cells = sentence2.cells.difference(sentence1.cells)
-            #             new_count = sentence2.count - sentence1.count
-            #             new_sentence = Sentence(new_cells,new_count)
-            #             new_knowledges.append(new_sentence)
-            #             repeat = True
-            #         elif sentence2.cells and sentence1.cells and (sentence2.cells).issubset(sentence1.cells) and sentence1.cells != sentence2.cells:
-            #             new_cells = sentence1.cells.difference(sentence2.cells)
-            #             new_count = sentence1.count - sentence2.count
-            #             new_sentence = Sentence(new_cells,new_count)
-
-            #             add = True
-            #             for i in new_knowledges:
-            #                 if(new_cells in i):
-            #                     add = False
-
-            #             if add:
-            #                 new_knowledges.append(new_sentence)
-            #                 repeat = True
-
             
-            # for new_knowledge in new_knowledges:
-            #     if new_knowledge in self.knowledge:
-            #         new_knowledges.remove(new_knowledge)
             
-            # if new_knowledges:
-            #     self.knowledge.extend(new_knowledges)
-
-            # #clean knowledge
-            # for x in self.knowledge[:]:  
-            #     if len(x.cells) == 0:
-            #         self.knowledge.remove(x)
         
 
     def make_safe_move(self):
