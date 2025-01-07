@@ -213,10 +213,17 @@ class MinesweeperAI():
 
 
         # add knowledge
-        if adjusted_cells:
+        if len(adjusted_cells) > 0:
             self.knowledge.append(Sentence(adjusted_cells, adjusted_count))
             print(f"added sentence: cells: {adjusted_cells} count: {adjusted_count}")     
-            print(f"Safes: {self.safes}, Mines: {self.mines}")       
+            print(f"Safes: {self.safes}, Mines: {self.mines}")
+            print("Knowledge Base:")
+            for sentence in self.knowledge:
+                print(sentence)
+
+        #clean knowledge
+        self.knowledge = [sentence for sentence in self.knowledge if sentence.cells]
+        
 
         # mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
         repeat = True
@@ -261,7 +268,11 @@ class MinesweeperAI():
                         if new_sentence not in self.knowledge:
                             print(f"new inferred sentence: cells: {new_cells} count: {new_count}")
                             print(f"Safes: {self.safes}, Mines: {self.mines}")
-                            self.knowledge.append(new_sentence)
+                            print("Knowledge Base:")
+                            for sentence in self.knowledge:
+                                print(sentence)
+                            sentence2.cells = new_cells
+                            sentence2.count = new_count
                             repeat = True
 
 
