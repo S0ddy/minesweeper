@@ -242,9 +242,22 @@ class MinesweeperAI():
                     self.mark_safe(safe)
                     repeat = True
 
-
             #infer new knowledge based on existing one
-            
+            #iterate over all sentences
+            for sentence1 in self.knowledge:
+                for sentence2 in self.knowledge:
+                    if sentence1 == sentence2:
+                        continue
+                    
+                    cells1 = sentence1.cells
+                    cells2 = sentence2.cells
+                    if len(cells1) > 0 and len(cells2) > 0 and cells1.issubset(cells2):
+                        sentence2.cells = cells2 - cells1
+                        repeat = True
+
+
+
+
             
         
 
