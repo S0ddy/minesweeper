@@ -191,13 +191,13 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-        # mark the cell as a move that has been made
+        # 1) mark the cell as a move that has been made
         self.moves_made.add(cell)
 
-        # mark the cell as safe
+        # 2) mark the cell as safe
         self.mark_safe(cell)
 
-        # add a new sentence to the AI's knowledge base based on the value of `cell` and `count`
+        # 3) add a new sentence to the AI's knowledge base based on the value of `cell` and `count`
         # if my cell has know_mines around then adjust cells
         all_cells_around = [(i,j) for i in range(cell[0]-1, cell[0]+2) for j in range(cell[1]-1, cell[1]+2)]
         adjusted_cells = set()
@@ -219,11 +219,7 @@ class MinesweeperAI():
             print(f"Safes: {self.safes}, Mines: {self.mines}")
             print("Knowledge Base:")
             for sentence in self.knowledge:
-                print(sentence)
-
-        #clean knowledge
-        self.knowledge = [sentence for sentence in self.knowledge if sentence.cells]
-        
+                print(sentence)      
 
         # mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
         repeat = True
@@ -231,14 +227,19 @@ class MinesweeperAI():
         while(repeat):
             repeat = False
 
+            #clean knowledge
+            self.knowledge = [sentence for sentence in self.knowledge if sentence.cells]
+
             adjusted_mines = set()
             adjusted_safes = set()
 
             for sentence in self.knowledge:
                 if sentence.known_mines():
                     adjusted_mines.update(sentence.known_mines())
+                    repeat = True
                 if sentence.known_safes():
                     adjusted_safes.update(sentence.known_safes())
+                    repeat = True
 
             for mine in adjusted_mines:
                 if mine not in self.mines:
@@ -259,21 +260,48 @@ class MinesweeperAI():
                     
                     cells1 = sentence1.cells
                     cells2 = sentence2.cells
-                    if len(cells1) > 0 and len(cells2) > 0 and cells1.issubset(cells2):
-                        new_cells = cells2 - cells1
-                        count1 = sentence1.count
-                        count2 = sentence2.count
-                        new_count = count2 - count1
-                        new_sentence = Sentence(new_cells, new_count)
-                        if new_sentence not in self.knowledge:
-                            print(f"new inferred sentence: cells: {new_cells} count: {new_count}")
-                            print(f"Safes: {self.safes}, Mines: {self.mines}")
-                            print("Knowledge Base:")
-                            for sentence in self.knowledge:
-                                print(sentence)
-                            sentence2.cells = new_cells
-                            sentence2.count = new_count
-                            repeat = True
+                    if len(cells1) > 0 and len(cells2) > 0 :
+                        if cells1.issubset(cells2):
+                            new_cells = cells2 - cells1
+                            count1 = sentence1.count
+                            count2 = sentence2.count
+                            new_count = count2 - count1
+                            new_sentence = Sentence(new_cells, new_count)
+                            if new_sentence not in self.knowledge:
+                                print(f"new inferred sentence: cells: {new_cells} count: {new_count}")
+                                print(f"Safes: {self.safes}, Mines: {self.mines}")
+                                print("Knowledge Base:")
+                                for sentence in self.knowledge:
+                                    print(sentence)
+                                sentence2.cells = new_cells
+                                sentence2.count = new_count
+                                repeat = True
+                        else:
+                            # Find overlapping cells
+                            overlap = cells1 & cells2  # Intersection
+                            if overlap:
+                                # Find the exclusive parts
+                                exclusive1 = cells1 - cells2  # Cells unique to sentence1
+                                exclusive2 = cells2 - cells1  # Cells unique to sentence2
+
+                                #count
+                                count1 = sentence1.count
+                                count2 = sentence2.count
+                                
+                                # Subtract counts to infer new information
+                                if len(exclusive1) > 0 and len(exclusive2) > 0:
+                                    # If both have exclusive parts, infer new sentences
+                                    inferred_count1 = count1 - len(overlap) + 1  # Mines left in exclusive1
+                                    inferred_count2 = count2 - len(overlap) + 1  # Mines left in exclusive2
+                                    
+                                    new_sentence1 = Sentence(exclusive1, inferred_count1)
+                                    new_sentence2 = Sentence(exclusive2, inferred_count2)
+                                    if new_sentence1 not in self.knowledge:
+                                        self.knowledge.append(new_sentence1)
+                                        repeat = True
+                                    if new_sentence2 not in self.knowledge:
+                                        self.knowledge.append(new_sentence2)
+                                        repeat = True
 
 
     def make_safe_move(self):
