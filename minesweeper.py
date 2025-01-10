@@ -237,19 +237,23 @@ class MinesweeperAI():
                 if sentence.known_mines():
                     adjusted_mines.update(sentence.known_mines())
                     repeat = True
+                    # break
                 if sentence.known_safes():
                     adjusted_safes.update(sentence.known_safes())
                     repeat = True
+                    # break
 
             for mine in adjusted_mines:
                 if mine not in self.mines:
                     self.mark_mine(mine)
                     repeat = True
+                    # break
 
             for safe in adjusted_safes:
                 if safe not in self.safes:
                     self.mark_safe(safe)
                     repeat = True
+                    # break
 
             #infer new knowledge based on existing one
             #iterate over all sentences
@@ -278,7 +282,19 @@ class MinesweeperAI():
                                 sentence2.cells = new_cells
                                 sentence2.count = new_count
                                 repeat = True
-                    if(count2 == 1 and cells):
+                                # break
+                        #intersection 
+                        else: 
+                            intersection = cells1 & cells2
+
+                            if len(intersection) == count2+1 and len(cells1) == count1 + 1:
+                                new_sentence = Sentence(intersection, count2)
+                                if new_sentence not in self.knowledge:
+                                    # sentence2.cells = intersection
+                                    # sentence2.count = count2
+                                    self.knowledge.append(new_sentence)
+                                    repeat = True
+                                    # break
 
                         
 
