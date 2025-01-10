@@ -260,6 +260,8 @@ class MinesweeperAI():
                     
                     cells1 = sentence1.cells
                     cells2 = sentence2.cells
+                    count1 = sentence1.count
+                    count2 = sentence2.count
                     if len(cells1) > 0 and len(cells2) > 0 :
                         if cells1.issubset(cells2):
                             new_cells = cells2 - cells1
@@ -276,32 +278,9 @@ class MinesweeperAI():
                                 sentence2.cells = new_cells
                                 sentence2.count = new_count
                                 repeat = True
-                        else:
-                            # Find overlapping cells
-                            overlap = cells1 & cells2  # Intersection
-                            if overlap:
-                                # Find the exclusive parts
-                                exclusive1 = cells1 - cells2  # Cells unique to sentence1
-                                exclusive2 = cells2 - cells1  # Cells unique to sentence2
+                    if(count2 == 1 and cells):
 
-                                #count
-                                count1 = sentence1.count
-                                count2 = sentence2.count
-                                
-                                # Subtract counts to infer new information
-                                if len(exclusive1) > 0 and len(exclusive2) > 0:
-                                    # If both have exclusive parts, infer new sentences
-                                    inferred_count1 = count1 - len(overlap) + 1  # Mines left in exclusive1
-                                    inferred_count2 = count2 - len(overlap) + 1  # Mines left in exclusive2
-                                    
-                                    new_sentence1 = Sentence(exclusive1, inferred_count1)
-                                    new_sentence2 = Sentence(exclusive2, inferred_count2)
-                                    if new_sentence1 not in self.knowledge:
-                                        self.knowledge.append(new_sentence1)
-                                        repeat = True
-                                    if new_sentence2 not in self.knowledge:
-                                        self.knowledge.append(new_sentence2)
-                                        repeat = True
+                        
 
 
     def make_safe_move(self):
