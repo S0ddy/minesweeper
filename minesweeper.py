@@ -274,11 +274,11 @@ class MinesweeperAI():
                             new_count = count2 - count1
                             new_sentence = Sentence(new_cells, new_count)
                             if new_sentence not in self.knowledge:
-                                print(f"new inferred sentence: cells: {new_cells} count: {new_count}")
-                                print(f"Safes: {self.safes}, Mines: {self.mines}")
-                                print("Knowledge Base:")
-                                for sentence in self.knowledge:
-                                    print(sentence)
+                                # print(f"new inferred sentence: cells: {new_cells} count: {new_count}")
+                                # print(f"Safes: {self.safes}, Mines: {self.mines}")
+                                # print("Knowledge Base:")
+                                # for sentence in self.knowledge:
+                                #     print(sentence)
                                 sentence2.cells = new_cells
                                 sentence2.count = new_count
                                 repeat = True
