@@ -13,7 +13,7 @@ def print_ai_status():
     else:
         print('NO Sentences in Knowledge Base.')       
     print(f'Safe Cells: {sorted(list(ai.safes))}')
-    print(f'Mine Cells: {sorted(list(ai.mines))}')   
+    print(f'Mine Cells: {sorted(list(ai.mines))}')  
 
 HEIGHT = 8
 WIDTH = 8
@@ -174,69 +174,72 @@ while True:
 
     left, _, right = pygame.mouse.get_pressed()
 
-    # Check for a right-click to toggle flagging
-    # if right == 1 and not lost:
-    #     mouse = pygame.mouse.get_pos()
-    #     for i in range(HEIGHT):
-    #         for j in range(WIDTH):
-    #             if cells[i][j].collidepoint(mouse) and (i, j) not in revealed:
-    #                 if (i, j) in flags:
-    #                     flags.remove((i, j))
-    #                 else:
-    #                     flags.add((i, j))
-    #                 time.sleep(0.2)
-
-    if left == 1 and lost:
-      mouse = pygame.mouse.get_pos()
-
-    # If AI button clicked, make an AI move
-    # Reset game state
-    if game.mines == flags and not lost:
-        game = Minesweeper(height=HEIGHT, width=WIDTH, mines=MINES)
-        ai = MinesweeperAI(height=HEIGHT, width=WIDTH)
-        revealed = set()
-        flags = set()
-        lost = False
-        continue
-    elif not lost:
-        move = ai.make_safe_move()
-        if move is None:
-            move = ai.make_random_move()
-            if move is None:
-                flags = ai.mines.copy()
-                print("No moves left to make.")
-            else:
-                print("No known safe moves, AI making random move.")
-        else:
-            print("AI making safe move.")
-        time.sleep(0.05)
-    elif resetButton.collidepoint(mouse) and lost:
-        game = Minesweeper(height=HEIGHT, width=WIDTH, mines=MINES)
-        ai = MinesweeperAI(height=HEIGHT, width=WIDTH)
-        revealed = set()
-        flags = set()
-        lost = False
-        print("\n\n ============================================================== \n\n")
-        continue
     
+    print_ai_status()
+
+    # Check for a right-click to toggle flagging
+    if right == 1 and not lost:
+        mouse = pygame.mouse.get_pos()
+        for i in range(HEIGHT):
+            for j in range(WIDTH):
+                if cells[i][j].collidepoint(mouse) and (i, j) not in revealed:
+                    if (i, j) in flags:
+                        flags.remove((i, j))
+                    else:
+                        flags.add((i, j))
+                    time.sleep(0.2)
+
+    else:
+        mouse = pygame.mouse.get_pos()
+
+        # If AI button clicked, make an AI move
+        if not lost:
+            move = ai.make_safe_move()
+            if move is None:
+                move = ai.make_random_move()
+                if move is None:
+                    flags = ai.mines.copy()
+                    print("No moves left to make.")
+                    print("======= RESET =======")
+                    game = Minesweeper(height=HEIGHT, width=WIDTH, mines=MINES)
+                    ai = MinesweeperAI(height=HEIGHT, width=WIDTH)
+                    revealed = set()
+                    flags = set()
+                    lost = False
+                    continue
+                else:
+                    print("No known safe moves, AI making random move.")
+            else:
+                print("AI making safe move.")
+            time.sleep(0.005)
+
+        # Reset game state
+        elif resetButton.collidepoint(mouse):
+            game = Minesweeper(height=HEIGHT, width=WIDTH, mines=MINES)
+            ai = MinesweeperAI(height=HEIGHT, width=WIDTH)
+            revealed = set()
+            flags = set()
+            lost = False
+            continue
 
         # User-made move
-        # elif not lost:
-        #     for i in range(HEIGHT):
-        #         for j in range(WIDTH):
-        #             if (cells[i][j].collidepoint(mouse)
-        #                     and (i, j) not in flags
-        #                     and (i, j) not in revealed):
-        #                 move = (i, j)
+        elif not lost:
+            for i in range(HEIGHT):
+                for j in range(WIDTH):
+                    if (cells[i][j].collidepoint(mouse)
+                            and (i, j) not in flags
+                            and (i, j) not in revealed):
+                        move = (i, j)
 
     # Make move and update AI knowledge
     if move:
         if game.is_mine(move):
+            # print_ai_status()
             lost = True
         else:
             nearby = game.nearby_mines(move)
             revealed.add(move)
             ai.add_knowledge(move, nearby)
-            print_ai_status()
+            # print_ai_status()
 
     pygame.display.flip()
