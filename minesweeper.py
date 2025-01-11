@@ -274,17 +274,6 @@ class MinesweeperAI():
                                 sentence2.cells = new_cells
                                 sentence2.count = new_count
                                 repeat = True
-                        #intersection 
-                        else: 
-                            intersection = cells1 & cells2
-                            if len(intersection) == count2+1 and len(cells1) == count1 + 1:
-                                new_sentence = Sentence(intersection, count2)
-                                if new_sentence not in self.knowledge:
-                                    self.knowledge.append(new_sentence)
-                                    repeat = True
-
-                        
-
 
     def make_safe_move(self):
         """
