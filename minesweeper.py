@@ -125,7 +125,7 @@ class Sentence():
         Updates internal knowledge representation given the fact that
         a cell is known to be a mine.
         """
-        if(cell in self.cells):
+        if cell in self.cells:
             self.count -= 1
             self.cells.remove(cell)
 
@@ -134,7 +134,7 @@ class Sentence():
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
-        if(cell in self.cells):
+        if cell in self.cells:
             self.cells.remove(cell)
 
 
@@ -200,7 +200,7 @@ class MinesweeperAI():
 
         # 3) add a new sentence to the AI's knowledge base based on the value of `cell` and `count`
         # if my cell has know_mines around then adjust cells
-        all_cells_around = [(i,j) for i in range(cell[0]-1, cell[0]+2) for j in range(cell[1]-1, cell[1]+2)
+        all_cells_around = [(i, j) for i in range(cell[0]-1, cell[0]+2) for j in range(cell[1]-1, cell[1]+2)
                             if 0 <= i < self.height and 0 <= j < self.width and (i,j) != cell]
         adjusted_cells = set()
         adjusted_count = count
@@ -209,21 +209,18 @@ class MinesweeperAI():
             if neighbor in self.mines:
                 adjusted_count -= 1
             elif neighbor not in self.moves_made and neighbor not in self.mines and neighbor not in self.safes:
-                adjusted_cells.add(neighbor) #just list of possible mines
-
+                adjusted_cells.add(neighbor)  # list of possible mines
 
         # add knowledge
         if len(adjusted_cells) > 0:
             self.knowledge.append(Sentence(adjusted_cells, adjusted_count)) 
 
         # 4) mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
-
-        # for i in range(2):
         repeat = True
-        while(repeat):
+        while repeat:
             repeat = False
 
-            #clean knowledge without cells
+            # clean knowledge without cells
             self.knowledge = [sentence for sentence in self.knowledge if sentence.cells]
 
             adjusted_mines = set()
@@ -248,11 +245,10 @@ class MinesweeperAI():
                     self.mark_safe(safe)
                     repeat = True
 
-            #infer new knowledge based on existing one
-            #iterate over all sentences
-            
+            # infer new knowledge based on existing one
+            # iterate over all sentences
             new_knowledge = []
-            for sentence1 in self.knowledge: #this loop can be wrong since I don't check another subset
+            for sentence1 in self.knowledge: 
                 for sentence2 in self.knowledge:
                     if sentence1 == sentence2:
                         continue
@@ -261,7 +257,7 @@ class MinesweeperAI():
                     cells2 = sentence2.cells
                     count1 = sentence1.count
                     count2 = sentence2.count
-                    if len(cells1) > 0 and len(cells2) > 0 :
+                    if len(cells1) > 0 and len(cells2) > 0:
                         if cells1.issubset(cells2):
                             new_cells = cells2 - cells1
                             count1 = sentence1.count
@@ -284,36 +280,6 @@ class MinesweeperAI():
                 self.knowledge.extend(new_knowledge)
                 repeat = True
                                     
-                            # elif (cells1 & cells2):
-                            #     # Find overlapping cells
-                            #     overlap = cells1 & cells2  # Intersection
-                            #     if overlap:
-                            #         # Find the exclusive parts
-                            #         exclusive1 = cells1 - cells2  # Cells unique to sentence1
-                            #         exclusive2 = cells2 - cells1  # Cells unique to sentence2
-                            #         #count
-                            #         count1 = sentence1.count
-                            #         count2 = sentence2.count
-                                    
-                            #         # Subtract counts to infer new information
-                            #         if len(exclusive1) > 0 and len(exclusive2) > 0:
-                            #             # If both have exclusive parts, infer new sentences
-                            #             inferred_count1 = count1 - len(overlap) + 1  # Mines left in exclusive1
-                            #             inferred_count2 = count2 - len(overlap) + 1  # Mines left in exclusive2
-                                        
-                            #             new_sentence1 = Sentence(exclusive1, inferred_count1)
-                            #             new_sentence2 = Sentence(exclusive2, inferred_count2)
-                            #             if new_sentence1 not in self.knowledge:
-                            #                 self.knowledge.append(new_sentence1)
-                            #                 repeat = True
-                                            
-                            #             if new_sentence2 not in self.knowledge:
-                            #                 self.knowledge.append(new_sentence2)
-                            #                 repeat = True
-                                            
-                    
-                    
-
     def make_safe_move(self):
         """
         Returns a safe cell to choose on the Minesweeper board.
@@ -330,7 +296,6 @@ class MinesweeperAI():
         else: 
             return None
         
-
     def make_random_move(self):
         """
         Returns a move to make on the Minesweeper board.
@@ -338,13 +303,13 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
-        #get all cells
-        possible_moves = [(i,j) for i in range(self.height) for j in range(self.width)]
+        # get all cells
+        possible_moves = [(i, j) for i in range(self.height) for j in range(self.width)]
 
-        #subtract maden moves
+        # subtract maden moves
         possible_moves = [cell for cell in possible_moves if cell not in self.moves_made]
 
-        #subtract known_mines
+        # subtract known_mines
         possible_moves = [cell for cell in possible_moves if cell not in self.mines]
 
         if possible_moves:
