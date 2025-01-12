@@ -1,3 +1,4 @@
+import copy
 import itertools
 import random
 
@@ -199,14 +200,13 @@ class MinesweeperAI():
 
         # 3) add a new sentence to the AI's knowledge base based on the value of `cell` and `count`
         # if my cell has know_mines around then adjust cells
-        all_cells_around = [(i,j) for i in range(cell[0]-1, cell[0]+2) for j in range(cell[1]-1, cell[1]+2)]
+        all_cells_around = [(i,j) for i in range(cell[0]-1, cell[0]+2) for j in range(cell[1]-1, cell[1]+2)
+                            if 0 <= i < self.height and 0 <= j < self.width and (i,j) != cell]
         adjusted_cells = set()
         adjusted_count = count
 
         for neighbor in all_cells_around:
-            if neighbor == cell or neighbor[0] < 0 or neighbor[0] >= self.height or neighbor[1] < 0 or neighbor[1] >= self.height:
-                continue
-            elif neighbor in self.mines:
+            if neighbor in self.mines:
                 adjusted_count -= 1
             elif neighbor not in self.moves_made and neighbor not in self.mines and neighbor not in self.safes:
                 adjusted_cells.add(neighbor) #just list of possible mines
@@ -214,20 +214,16 @@ class MinesweeperAI():
 
         # add knowledge
         if len(adjusted_cells) > 0:
-            self.knowledge.append(Sentence(adjusted_cells, adjusted_count))
-            print(f"added sentence: cells: {adjusted_cells} count: {adjusted_count}")     
-            print(f"Safes: {self.safes}, Mines: {self.mines}")
-            print("Knowledge Base:")
-            for sentence in self.knowledge:
-                print(sentence)      
+            self.knowledge.append(Sentence(adjusted_cells, adjusted_count)) 
 
-        # mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
+        # 4) mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
+
+        # for i in range(2):
         repeat = True
-
         while(repeat):
             repeat = False
 
-            #clean knowledge
+            #clean knowledge without cells
             self.knowledge = [sentence for sentence in self.knowledge if sentence.cells]
 
             adjusted_mines = set()
@@ -254,7 +250,9 @@ class MinesweeperAI():
 
             #infer new knowledge based on existing one
             #iterate over all sentences
-            for sentence1 in self.knowledge:
+            
+            new_knowledge = []
+            for sentence1 in self.knowledge: #this loop can be wrong since I don't check another subset
                 for sentence2 in self.knowledge:
                     if sentence1 == sentence2:
                         continue
@@ -270,10 +268,51 @@ class MinesweeperAI():
                             count2 = sentence2.count
                             new_count = count2 - count1
                             new_sentence = Sentence(new_cells, new_count)
-                            if new_sentence not in self.knowledge:
-                                sentence2.cells = new_cells
-                                sentence2.count = new_count
-                                repeat = True
+                            if new_sentence not in self.knowledge and new_sentence not in new_knowledge:
+                                new_knowledge.append(new_sentence)
+                                
+                        elif cells2.issubset(cells1):
+                            new_cells = cells1 - cells2
+                            count1 = sentence1.count
+                            count2 = sentence2.count
+                            new_count = count1 - count2
+                            new_sentence = Sentence(new_cells, new_count)
+                            if new_sentence not in self.knowledge and new_sentence not in new_knowledge:
+                                new_knowledge.append(new_sentence)
+            
+            if new_knowledge:
+                self.knowledge.extend(new_knowledge)
+                repeat = True
+                                    
+                            # elif (cells1 & cells2):
+                            #     # Find overlapping cells
+                            #     overlap = cells1 & cells2  # Intersection
+                            #     if overlap:
+                            #         # Find the exclusive parts
+                            #         exclusive1 = cells1 - cells2  # Cells unique to sentence1
+                            #         exclusive2 = cells2 - cells1  # Cells unique to sentence2
+                            #         #count
+                            #         count1 = sentence1.count
+                            #         count2 = sentence2.count
+                                    
+                            #         # Subtract counts to infer new information
+                            #         if len(exclusive1) > 0 and len(exclusive2) > 0:
+                            #             # If both have exclusive parts, infer new sentences
+                            #             inferred_count1 = count1 - len(overlap) + 1  # Mines left in exclusive1
+                            #             inferred_count2 = count2 - len(overlap) + 1  # Mines left in exclusive2
+                                        
+                            #             new_sentence1 = Sentence(exclusive1, inferred_count1)
+                            #             new_sentence2 = Sentence(exclusive2, inferred_count2)
+                            #             if new_sentence1 not in self.knowledge:
+                            #                 self.knowledge.append(new_sentence1)
+                            #                 repeat = True
+                                            
+                            #             if new_sentence2 not in self.knowledge:
+                            #                 self.knowledge.append(new_sentence2)
+                            #                 repeat = True
+                                            
+                    
+                    
 
     def make_safe_move(self):
         """
